@@ -1,0 +1,7 @@
+(jbuild_version 1)
+
+(library
+ ((name lib)
+  ; This will be installable as a global binary
+  (public_name GraphQLTools)
+  (libraries (angstrom))))

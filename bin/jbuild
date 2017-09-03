@@ -1,0 +1,8 @@
+(jbuild_version 1)
+
+(executable
+ ((name main)
+  ; This will be installable as a global binary
+  (public_name graphql-tools)
+  ; and it depends on 2 local libraries
+  (libraries (angstrom lib))))

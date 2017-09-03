@@ -1,0 +1,873 @@
+schema {
+  query: Query
+  mutation: Mutations
+}
+
+enum AccountType {
+  INACTIVE
+  PARENT
+  PERSONAL
+  STAFF
+  STUDENT
+  TEACHER
+}
+
+type AdaptiveTask implements TaskInterface {
+  title: String!
+  allTopicsDisplayUrl: String!
+  startDate: DateTime!
+  dueDate: DateTime!
+  detailUrl: String!
+  type: TaskTypes!
+  badgeUrl: String!
+}
+
+union AreaOfStudyUnionType = Syllabus | Topic | Subtopic
+
+type BaseSubtopic implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  title: String!
+  order: Int
+  status: String
+  lang: String
+  basetopic: BaseTopic!
+}
+
+type BaseTopic implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  title: String!
+  order: Int
+  onboardingPriority: Int
+  lang: String
+  badgeCdnArtPath: String
+  photoArtCdnPath: String
+  basesubtopics: [BaseSubtopic]
+}
+
+type CancelActiveSubscription {
+  errors: [MutationErrorObject]!
+  user: User
+}
+
+type Card {
+  id: ID!
+  user: User
+  name: String
+  expiryMonth: Int!
+  expiryYear: Int!
+  last4Digits: String!
+  brand: String!
+}
+
+type Chapter implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  content: String!
+  order: Int!
+  published: Boolean!
+  visible: Boolean!
+  title: String!
+  subtopic: Subtopic!
+  nextChapter: Chapter
+  previousChapter: Chapter
+  chapterType: ChapterType!
+}
+
+type ChapterConnection {
+  edges: [ChapterEdge]!
+  pageInfo: PageInfo!
+}
+
+type ChapterEdge {
+  node: Chapter
+  cursor: String!
+}
+
+enum ChapterType {
+  INVESTIGATION
+  LESSON
+  QUESTIONS
+}
+
+type Charge {
+  id: ID!
+  amount: Int!
+  currency: Currency!
+  paid: Boolean
+  user: User
+  status: ChargeStatus!
+  created: DateTime!
+  source: Card
+}
+
+type ChargeConnection {
+  pageInfo: PageInfo!
+  edges: [ChargeEdge]!
+}
+
+type ChargeEdge {
+  node: Charge
+  cursor: String!
+}
+
+enum ChargeStatus {
+  SUCCEEDED
+  PENDING
+  FAILED
+}
+
+type ClassObject implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  dataSource: DataSource!
+  dataSourceId: String
+  hideSchoolClass: Boolean!
+  title: String!
+  school: SchoolObject
+  code: String
+}
+
+type ClassObjectConnection {
+  edges: [ClassObjectEdge]!
+  pageInfo: PageInfo!
+}
+
+type ClassObjectEdge {
+  node: ClassObject
+  cursor: String!
+}
+
+enum CohortType {
+  CLEVER
+  HK_ED_CITY
+  LGFL
+  PEARSON
+  SELF_PAID
+  STANDARD
+  WESTPAC
+}
+
+type CountryObject {
+  id: ID!
+  code: String!
+  name: String!
+}
+
+type Coupon {
+  stripeId: ID!
+  percentOff: Int
+  durationInMonths: Int
+  duration: CouponDuration!
+  created: DateTime!
+  maxRedemptions: Int
+  timesRedeemed: Int
+  valid: Boolean!
+  amountOff: Int
+  currency: Currency
+}
+
+enum CouponDuration {
+  FOREVER
+  ONCE
+  REPEATING
+}
+
+type CreateUser {
+  user: User
+  errors: [MutationErrorObject]!
+}
+
+input CreateUserInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  timezone: String
+  syllabusFocusId: Int
+  parentEmail: String
+  country: String
+  password: String!
+  planPk: Int
+  classCode: String
+  isTeacherDemo: Boolean
+}
+
+enum Currency {
+  AUD
+  EUR
+  GBP
+  HKD
+  JPY
+  LBP
+  SGD
+  USD
+}
+
+type Curriculum implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  title: String!
+  countrySubdivision: String!
+  syllabuses(first: Int, last: Int, before: ID, after: ID): SyllabusConnection!
+  country: CountryObject
+}
+
+type CustomTask implements TaskInterface {
+  title: String!
+  allTopicsDisplayUrl: String!
+  startDate: DateTime!
+  dueDate: DateTime!
+  detailUrl: String!
+  type: TaskTypes!
+  badgeUrl: String!
+  areaOfStudy: AreaOfStudyUnionType!
+  class: ClassObject
+}
+
+enum DataSource {
+  MANUAL_ENTRY
+  LGFL_SYNC
+  PEARSON_AU_NZ_SYNC
+  SPREADSHEET_IMPORT
+  PEARSON_US_XL_MYMATHLAB_INTEGRATION
+  HK_CITY_ED_INTEGRATION
+  CLEVER_INTEGRATION
+}
+
+scalar DateTime
+
+scalar String
+
+scalar Int
+
+scalar ID
+
+type DeleteWestpacPromoMutation {
+  errors: [MutationErrorObject]!
+}
+
+type Discount {
+  start: DateTime!
+  end: DateTime
+  coupon: Coupon!
+}
+
+type FastTrackTask implements TaskInterface {
+  title: String!
+  allTopicsDisplayUrl: String!
+  startDate: DateTime!
+  dueDate: DateTime!
+  detailUrl: String!
+  type: TaskTypes!
+  badgeUrl: String!
+}
+
+enum Gender {
+  UNKNOWN
+  MALE
+  FEMALE
+}
+
+enum Interval {
+  YEAR
+  WEEK
+}
+
+type Invoice {
+  id: ID!
+  amountDue: Int!
+  attemptCount: Int!
+  attempted: Boolean!
+  charge: Charge
+  currency: Currency
+  customer: User
+  date: DateTime
+  nextPaymentAttempt: DateTime
+  paid: Boolean!
+  receiptNumber: String
+  subscription: PersonalSubscription
+  total: Int!
+}
+
+type InvoiceConnection {
+  pageInfo: PageInfo!
+  edges: [InvoiceEdge]!
+}
+
+type InvoiceEdge {
+  node: Invoice
+  cursor: String!
+}
+
+type LeaderboardObject {
+  all: [LeaderboardUserObject]
+  weekly: [LeaderboardUserObject]
+}
+
+type LeaderboardUserObject {
+  points: Int!
+  rank: Int!
+  name: String!
+  avatarUrl: String!
+}
+
+type LegacyUserSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+}
+
+type MutationErrorObject {
+  key: String!
+  message: String!
+}
+
+type Mutations {
+  updateUser(user: UpdateUserInput, pk: ID!): UpdateUser
+  createUser(user: CreateUserInput!): CreateUser
+  updateSubscription(userPk: Int!, subscription: SubscriptionInput!): UpdateSubscriptionSettings
+  cancelActiveSubscription(userPk: Int!, atPeriodEnd: Boolean): CancelActiveSubscription
+  updateWestpacPromo(westpacPromo: WestpacPromoInput!): UpdateWestpacPromoMutation
+  deleteWestpacPromo(westpacPromoPk: Int!): DeleteWestpacPromoMutation
+}
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type ParentSubscriber implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  firstName: String!
+  lastName: String!
+  email: String!
+}
+
+type ParentSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+}
+
+type PartnerSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+}
+
+type PersonalPlan implements PkInterface {
+  pk: Int!
+  title: String!
+  stripePlanId: StripePlanId!
+  amount: Int!
+  interval: Interval!
+  type: PlanType!
+  personalPlanType: PersonalPlanType!
+  currency: Currency!
+  intervalCount: Int!
+  canAccessWorkouts: Boolean!
+  canAccessLearnApp: Boolean!
+  trialPeriodDays: Int!
+}
+
+enum PersonalPlanType {
+  ESSENTIALS
+  PLUS
+}
+
+type PersonalSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+  stripeId: String
+  plan: PersonalPlan!
+  discount: Discount
+  state: SubscriptionState
+}
+
+interface PkInterface {
+  pk: Int!
+}
+
+enum PlanType {
+  PERSONAL
+  STUDENT_SCHOOL_PAID
+  STUDENT_SELF_PAID
+}
+
+type PointsObject {
+  current: Int!
+  best: Int!
+}
+
+type Query {
+  availableTimezones: [TimezoneObject]
+  availableSyllabuses: [Syllabus]
+  availableCountries: [CountryObject]
+  availablePlans: [SubscribablePlanUnionType]
+  chapter(pk: ID!): Chapter
+  subtopic(pk: ID!): Subtopic
+  topic(pk: ID!): Topic
+  syllabus(pk: ID!): Syllabus
+  viewer: User
+}
+
+type RecommendedItem {
+  title: String!
+  url: String!
+  badgeUrl: String!
+  topicBadge: TopicBadgeObject!
+}
+
+type SchoolObject implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  title: String!
+  startTime: String
+  finishTime: String
+}
+
+type SignupBonus implements Node {
+  id: ID!
+  pk: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  bonusState: SignupBonusState!
+  accountName: String!
+  accountBsb: String!
+  accountNumber: String!
+  amount: Int!
+  signupBonusHistories(first: Int, last: Int, before: ID, after: ID): SignupBonusHistoryConnection!
+  currency: Currency
+}
+
+type SignupBonusConnection {
+  edges: [SignupBonusEdge]!
+  pageInfo: PageInfo!
+}
+
+type SignupBonusEdge {
+  node: SignupBonus
+  cursor: String!
+}
+
+type SignupBonusHistory implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  toBonusState: SignupBonusState
+  createdAt: DateTime!
+}
+
+type SignupBonusHistoryConnection {
+  edges: [SignupBonusHistoryEdge]!
+  pageInfo: PageInfo!
+}
+
+type SignupBonusHistoryEdge {
+  node: SignupBonusHistory
+  cursor: String!
+}
+
+enum SignupBonusState {
+  USER_ADDED_ACCOUNT
+  WESTPAC_PROCESSING
+  PENDING_USER_VERIFICATION
+  ELIGIBLE_AND_UNPAID
+  PAYING
+  PAID
+  PAID_AND_INVOICED
+  INELIGIBLE
+  INVALID_ACCOUNT
+  USER_VERIFICATION_EXPIRED
+  MANUALLY_PAID
+}
+
+type StaffSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+}
+
+enum StripePlanId {
+  MATHSPACE_PLUS_AU
+  MATHSPACE_ESSENTIALS_AU
+  MATHSPACE_WESTPAC_ESSENTIALS_AU
+  MATHSPACE_PLUS_US
+  MATHSPACE_ESSENTIALS_US
+  MATHSPACE_PLUS_UK
+  MATHSPACE_ESSENTIALS_UK
+  MATHSPACE_PLUS_HK
+  MATHSPACE_ESSENTIALS_HK
+  MATHSPACE_PLUS_SG
+  MATHSPACE_ESSENTIALS_SG
+}
+
+type Student implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  upcomingTasks: [TaskInterface]
+  leaderboard: LeaderboardObject
+  user: User!
+  school: SchoolObject
+  classes(first: Int, last: Int, before: ID, after: ID): ClassObjectConnection!
+}
+
+type StudentSchoolPaidPlan {
+  school: SchoolObject!
+  canAccessWorkouts: Boolean!
+  canAccessLearnApp: Boolean!
+  type: PlanType!
+}
+
+type StudentSchoolPaidSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+  plan: StudentSchoolPaidPlan!
+}
+
+type StudentSelfPaidPlan implements PkInterface {
+  pk: Int!
+  title: String!
+  amount: Int!
+  currency: Currency!
+  startDate: DateTime!
+  endDate: DateTime!
+  school: SchoolObject!
+  type: PlanType!
+  canAccessWorkouts: Boolean!
+  canAccessLearnApp: Boolean!
+}
+
+type StudentSelfPaidSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+  plan: StudentSelfPaidPlan!
+}
+
+union SubscribablePlanUnionType = PersonalPlan | StudentSelfPaidPlan
+
+type SubscriptionHistory {
+  pk: Int!
+  user: User!
+  startDate: DateTime!
+  subscriptionState: SubscriptionState!
+  stripeSubscriptionId: String!
+  plan: PersonalPlan
+  latestStripeEventId: String!
+}
+
+input SubscriptionInput {
+  source: String
+  planPk: Int
+  endTrialNow: Boolean
+}
+
+interface SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+}
+
+enum SubscriptionState {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
+
+enum SubscriptionType {
+  NO_SUBSCRIPTION
+  PERSONAL
+  STUDENT_SCHOOL_PAID
+  STUDENT_SELF_PAID
+  LEGACY
+  PARTNER
+  TEACHER
+  PARENT
+  STAFF
+}
+
+type Subtopic implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  title: String!
+  order: Int
+  basesubtopic: BaseSubtopic!
+  topic: Topic!
+  eBookUrl: String!
+  studyUrl: String
+  chapters(first: Int, last: Int, before: ID, after: ID): ChapterConnection!
+}
+
+type SubtopicConnection {
+  edges: [SubtopicEdge]!
+  pageInfo: PageInfo!
+}
+
+type SubtopicEdge {
+  node: Subtopic
+  cursor: String!
+}
+
+type Syllabus implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  title: String!
+  country: CountryObject
+  curriculum: Curriculum!
+  eBookUrl: String!
+  backgroundUrl: String!
+  topics(first: Int, last: Int, before: ID, after: ID): TopicConnection!
+  subtopics(first: Int, last: Int, before: ID, after: ID): SubtopicConnection!
+}
+
+type SyllabusConnection {
+  edges: [SyllabusEdge]!
+  pageInfo: PageInfo!
+}
+
+type SyllabusEdge {
+  node: Syllabus
+  cursor: String!
+}
+
+interface TaskInterface {
+  title: String!
+  allTopicsDisplayUrl: String!
+  startDate: DateTime!
+  dueDate: DateTime!
+  detailUrl: String!
+  type: TaskTypes!
+  badgeUrl: String!
+}
+
+enum TaskTypes {
+  CUSTOM_TASK
+  ADAPTIVE_TASK
+  FASTTRACK_TASK
+}
+
+type TeacherSubscription implements SubscriptionInterface {
+  user: User!
+  startDate: DateTime!
+  endDate: DateTime
+  type: SubscriptionType!
+  pk: Int!
+}
+
+type TimezoneObject {
+  id: ID!
+  offset: String!
+  displayName: String!
+  name: String!
+}
+
+enum Title {
+  _
+  MR
+  MRS
+  MISS
+  MS
+  DR
+}
+
+type Topic implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  title: String!
+  syllabus: Syllabus!
+  subtopics(first: Int, last: Int, before: ID, after: ID): SubtopicConnection!
+  order: Int
+  badgeUrl: String!
+  eBookUrl: String!
+  studyUrl: String!
+  nextTopic: Topic
+  backgroundUrl: String!
+}
+
+type TopicBadgeObject {
+  pk: Int!
+  topic: Topic!
+  title: String!
+  updatedAt: DateTime
+  proficiency: Float
+}
+
+type TopicConnection {
+  edges: [TopicEdge]!
+  pageInfo: PageInfo!
+}
+
+type TopicEdge {
+  node: Topic
+  cursor: String!
+}
+
+type UpdateSubscriptionSettings {
+  errors: [MutationErrorObject]!
+  user: User
+}
+
+type UpdateUser {
+  user: User
+  errors: [MutationErrorObject]!
+}
+
+input UpdateUserInput {
+  email: String
+  firstName: String
+  lastName: String
+  timezone: String
+  syllabusFocusId: Int
+  parentEmail: String
+  country: String
+  password: String
+}
+
+type UpdateWestpacPromoMutation {
+  westpacPromo: WestpacPromo
+  signupBonus: SignupBonus
+  errors: [MutationErrorObject]!
+}
+
+type User implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  westpac: WestpacObject
+  badgesEarned: [TopicBadgeObject]!
+  recommendations: [RecommendedItem]
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  timezone: String!
+  syllabusFocus: Syllabus!
+  children: [User]
+  country: CountryObject
+  activeSubscription: SubscriptionInterface
+  defaultPaymentSource: Card
+  invoices(before: String, after: String, first: Int, last: Int): InvoiceConnection
+  paymentHistory(before: String, after: String, first: Int, last: Int): ChargeConnection
+  userType: String
+  accountType: AccountType!
+  cohortType: CohortType!
+  dataSource: DataSource!
+  dataSourceId: String
+  gender: Gender!
+  title: Title!
+  points: PointsObject
+  avatar: String!
+  completedSubtopics: [Subtopic]!
+  parentSubscriber: ParentSubscriber
+  student: Student
+}
+
+type WeeklyReward implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  start: DateTime!
+  end: DateTime!
+  rewardState: WeeklyRewardState!
+  amount: Int!
+  completedSubtopicsCount: Int
+  accountName: String
+  accountBsb: String
+  accountNumber: String
+  weeklyRewardHistories(first: Int, last: Int, before: ID, after: ID): WeeklyRewardHistoryConnection!
+  currency: Currency
+  subscriptionHistory: SubscriptionHistory
+}
+
+type WeeklyRewardConnection {
+  edges: [WeeklyRewardEdge]!
+  pageInfo: PageInfo!
+}
+
+type WeeklyRewardEdge {
+  node: WeeklyReward
+  cursor: String!
+}
+
+type WeeklyRewardHistory implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  fromRewardState: WeeklyRewardState
+  toRewardState: WeeklyRewardState!
+}
+
+type WeeklyRewardHistoryConnection {
+  edges: [WeeklyRewardHistoryEdge]!
+  pageInfo: PageInfo!
+}
+
+type WeeklyRewardHistoryEdge {
+  node: WeeklyRewardHistory
+  cursor: String!
+}
+
+enum WeeklyRewardState {
+  IN_PROGRESS
+  GOAL_NOT_MET
+  GOAL_MET_UNREWARDED
+  GOAL_MET_PAYING
+  GOAL_MET_REWARDED
+  SUBSCRIPTION_INVALID
+  MANUALLY_PAID
+}
+
+type WestpacObject {
+  currentWeek: WestpacWeek!
+  completedSubtopics: [Subtopic]! @deprecated(reason: "DEPRECATED: Use viewer.completedSubtopics instead.")
+  signupBonuses(first: Int, last: Int, before: ID, after: ID): SignupBonusConnection!
+  weeklyRewards(first: Int, last: Int, before: ID, after: ID): WeeklyRewardConnection!
+  westpacPromo: WestpacPromo
+}
+
+type WestpacPromo implements Node, PkInterface {
+  id: ID!
+  pk: Int!
+  currentAccountName: String
+  currentAccountBsb: String
+  currentAccountNumber: String
+}
+
+input WestpacPromoInput {
+  currentAccountName: String!
+  currentAccountBsb: String!
+  currentAccountNumber: String!
+}
+
+type WestpacWeek {
+  start: DateTime!
+  end: DateTime!
+}
