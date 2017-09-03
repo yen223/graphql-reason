@@ -1,10 +1,6 @@
 open Angstrom;
 open StrUtils;
 
-let is_whitespace c => switch c {
-  | ' ' | '\n' | '\r' | '\t' => true
-  | _ => false
-};
 
 let chars_to_string cs => {
   let buf = Buffer.create (List.length cs);
@@ -32,10 +28,10 @@ let is_name_char = fun | 'a' .. 'z'
                        | '_'  => true
                        | _ => false;
 let alpha_num = {
-  let is_alpha_num c => switch c {
+  let is_alpha_num = fun
     | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' => true
     | _ => false
-  };
+  ;
   many (satisfy is_alpha_num)
 };
 
@@ -198,15 +194,3 @@ let test_parser p str => switch (parse_only p (`String str)) {
   | Result.Ok v => v
   | Result.Error message => failwith message
 };
-let rec input_lines file =>
-  switch (
-    try [input_line file] {
-    | End_of_file => []
-    }
-  ) {
-  | [] => []
-  | line => List.append line (input_lines file)
-  };
-
-let input_string file => input_lines file |> join_with "\n";
-let actual = open_in "./actual.gql" |> input_string;
