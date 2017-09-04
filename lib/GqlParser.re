@@ -180,11 +180,6 @@ let parse_all =
   return res
 ;
 
-let print_all ent_list => ent_list |> List.map GqlPrinter.print_type |> join_with "\n\n";
-let parse_and_print str => switch (parse_only parse_all (`String str)){
-  | Result.Ok v => print_all v
-  | Result.Error message => failwith message
-};
 let parse_to_entities str => switch (parse_only parse_all (`String str)) {
   | Result.Ok v => v
   | Result.Error message => failwith message

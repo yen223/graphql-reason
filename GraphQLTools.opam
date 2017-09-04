@@ -20,6 +20,5 @@ depends: [
   "reason"  {= "2.0.0"}
   "re"
   "angstrom"
-  "core"
 ]
 available: [ ocaml-version >= "4.02" & ocaml-version < "4.05" ]

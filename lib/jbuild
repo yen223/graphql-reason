@@ -4,4 +4,4 @@
  ((name lib)
   ; This will be installable as a global binary
   (public_name GraphQLTools)
-  (libraries (angstrom))))
+  (libraries (angstrom str))))
