@@ -89,6 +89,7 @@ let parse_deprecation =
   parens (token (string "reason:") *> quoted '"') >>= fun reason =>
   reason |> return
 ;
+
 let parse_field = GraphQLTypes.(
   token (parse_name)                                >>= fun name =>
   option [] (parens (sep_by1 comma parse_argument)) >>= fun args =>
