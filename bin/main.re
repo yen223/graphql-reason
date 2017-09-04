@@ -11,7 +11,7 @@ let rec input_lines file =>
   | line => List.append line (input_lines file)
   };
 
-let input_string file => input_lines file |> Lib.StrUtils.join_with "\n";
+let input_string file => input_lines file |> Lib.StrUtils.unlines;
 
 let print_all printer entities =>
   List.map printer entities

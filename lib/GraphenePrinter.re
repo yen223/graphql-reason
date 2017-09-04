@@ -66,7 +66,7 @@ let print_field (Field {name, description, args, output_type, deprecated}) =>
 let print_input_value (InputValue {name, description, default_value, graphql_type}) =>
   print_as_field "InputField" name description [] graphql_type NotDeprecated;
 
-let rec print_type = fun
+let print_type = fun
   /* | Scalar {name, description} => Scalar {name, description} */
   | Object {name, description, fields, interfaces} => {
     mk_class name ["ObjectType"] (List.map print_field fields)
