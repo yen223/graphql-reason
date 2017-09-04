@@ -7,7 +7,7 @@ let rec join_with (sep: string) (strs: list string) => switch strs {
 let indent = (^) "  ";
 let surround s t str => s ^ str ^ t;
 let unlines = join_with "\n";
-let is_whitespace => fun
+let is_whitespace = fun
   | ' ' | '\n' | '\r' | '\t' => true
   | _ => false
 ;
