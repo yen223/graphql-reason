@@ -1,4 +1,4 @@
-# graphql-reasonml
+# graphql-reason
 
 A set of GraphQL command-line tools, written in ReasonML.
 
