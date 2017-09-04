@@ -1,9 +1,6 @@
 open Angstrom;
 open Lib.GqlParser;
 
-/* let buf = Bytes.create 1000000;
-let _ = input stdin buf 0 1000000; */
-
 let rec input_lines file =>
   switch (
     try [input_line file] {
