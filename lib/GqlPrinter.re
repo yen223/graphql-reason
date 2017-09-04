@@ -6,7 +6,7 @@ let (<<) f g x => f(g(x));
 let str_keyval key value => key ^ ": " ^ value;
 let block header block_lines => {
   let inner = List.map indent block_lines;
-  header ^ " {\n" ^ (lines inner) ^ "\n}"
+  header ^ " {\n" ^ (unlines inner) ^ "\n}"
 };
 
 let print_enum_value (EnumValue name _ _) => name;
