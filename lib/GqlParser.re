@@ -85,7 +85,7 @@ let parse_key_value =
 ;
 
 let parse_deprecation =
-  token (string "@deprecated")          >>= fun _ =>
+  token (string "@deprecated")                    >>= fun _ =>
   parens (token (string "reason:") *> quoted '"') >>= fun reason =>
   reason |> return
 ;
@@ -162,26 +162,59 @@ let parse_input = GraphQL.(
   } |> return
 );
 
-let parse_schema = GraphQL.(
-  token (string "schema") >>= fun _ =>
-  token (braces (many parse_field)) >>= fun fields =>
-  Schema fields |> return
+let parse_key k => GraphQL.(
+  token (string k)       >>= fun _ =>
+  token (char ':')       >>= fun _ =>
+  token (parse_name)     >>= fun name =>
+  LazyType name |> return
 );
 
-let parse_entity = parse_schema
-               <|> parse_input
+type entity_or_schema =
+  | Schema' {query: GraphQL.t, mutation: option GraphQL.t}
+  | Entity' GraphQL.t
+;
+
+let parse_schema =
+  token (string "schema")    >>= fun _ =>
+  token (string "{")         >>= fun _ =>
+  (parse_key "query")        >>= fun query =>  /*TODO: query doesn't always come before mutation */
+  opt (parse_key "mutation") >>= fun mutation =>
+  token (string "}")         >>= fun _ =>
+  Schema' {query, mutation} |> return
+;
+
+let parse_entity = parse_input
                <|> parse_interface
                <|> parse_scalar
                <|> parse_union
                <|> parse_enum
                <|> parse_object;
-let parse_all =
-  many (parse_entity |> token) >>= fun res =>
-  skip_whitespace              >>= fun _ =>
-  return res
+
+let parse_entity_or_schema =
+  parse_schema <|> (parse_entity >>| (fun x => Entity' x))
 ;
 
-let parse_to_entities str => switch (parse_only parse_all (`String str)) {
+let build_schema entities' => GraphQL.({
+  let is_schema = fun
+    | Schema' _ => true
+    | Entity' _ => false
+  ;
+  let (schemas', entities) = List.partition is_schema entities';
+  let types = entities
+              |> List.map (fun (Entity' x) => x)
+              |> build_type_map;
+  let (Schema' {query, mutation}) = List.hd schemas';  /* TODO: no head! */
+  Schema {query, mutation, types}
+});
+
+
+let parse_all =
+  many (parse_entity_or_schema |> token) >>= fun res =>
+  skip_whitespace                        >>= fun _ =>
+  build_schema res |> return
+;
+
+let parse_schema str => switch (parse_only parse_all (`String str)) {
   | Result.Ok v => v
   | Result.Error message => failwith message
 };

@@ -46,11 +46,6 @@ let rec print_type = fun
   | ListType typ  => "[" ^ print_type typ ^ "]"
   | NonNull typ   => print_type typ ^ "!"
   | LazyType name => name
-  | Schema fields => {
-      let header = "schema";
-      let block_lines = (map print_field fields) |> sort String.compare;
-      block header block_lines
-    }
 
 and print_field (f: field) => {
   let Field {name, description, args, output_type, deprecated} = f;

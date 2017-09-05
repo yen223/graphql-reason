@@ -32,9 +32,11 @@ and t =
   | ListType    t
   | NonNull     t /*TODO: Figure out way to avoid nested NonNulls. GADT? */
   | LazyType    string  /*TODO: Figure out way to avoid this */
-  | Schema      fields  /*TODO: Schema should be separate */
 ;
 
+module TypeMap = Map.Make String;
+type type_map = TypeMap.t t;
+type schema = Schema {query: t, mutation: option t, types: type_map};
 type directive_location =
   | QUERY
   | MUTATION
@@ -50,3 +52,25 @@ type directive = Directive {
   locations: list directive_location,
   args: list input_value_type,
 };
+
+let rec type_name = fun
+| Scalar      {name, _}
+| Object      {name, _}
+| Interface   {name, _}
+| Union       {name, _}
+| Enum        {name, _}
+| InputObject {name, _}
+| LazyType name => name
+| ListType typ
+| NonNull typ => type_name typ
+;
+
+let build_type_map entities => TypeMap.({
+  let rec aux mp ls => {
+    switch ls {
+    | [] => mp
+    | [x, ...xs] => aux (add (type_name x) x mp) xs
+    };
+  };
+  aux empty entities;
+});

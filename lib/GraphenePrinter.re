@@ -27,9 +27,8 @@ let rec print_type_name = fun
   | Enum        {name, _}
   | InputObject {name, _}
   | LazyType name => name
-  | ListType t => call "List" (print_type_name t)
-  | NonNull t => print_type_name t
-  | Schema _ => "Schema"
+  | ListType t    => call "List" (print_type_name t)
+  | NonNull t     => print_type_name t
 ;
 
 let is_some = fun |Some _ => true
@@ -110,3 +109,11 @@ let print_type = fun
   }
   | _ => ""
 ;
+
+let print_schema (Schema {query, mutation, types}) => {
+  TypeMap.bindings types
+  |> List.map snd
+  |> List.map print_type
+  |> List.filter ((!=) "")
+  |> StrUtils.join_with "\n\n\n"
+}

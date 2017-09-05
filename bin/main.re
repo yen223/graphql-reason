@@ -13,12 +13,6 @@ let rec input_lines file =>
 
 let input_string file => input_lines file |> Lib.StrUtils.unlines;
 
-let print_all printer entities =>
-  List.map printer entities
-  |> List.filter ((!=) "")
-  |> Lib.StrUtils.join_with "\n\n\n"
-;
-
-let entities = parse_to_entities (input_string stdin);
-let result = print_all Lib.GraphenePrinter.print_type entities;
+let schema = parse_schema (input_string stdin);
+let result = Lib.GraphenePrinter.print_schema schema;
 print_endline result;
