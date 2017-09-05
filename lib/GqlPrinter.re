@@ -1,4 +1,4 @@
-open GraphQLTypes;
+open GraphQL;
 open StrUtils;
 open List;
 

@@ -42,7 +42,7 @@ let parse_name = token (
   ) <?> "Name must be [a-zA-Z_]"
 ;
 
-let base_type = GraphQLTypes.(
+let base_type = GraphQL.(
   parse_name >>= fun t =>
   option None (char '!' >>| to_some) >>= fun c =>
   return (switch c {
@@ -51,7 +51,7 @@ let base_type = GraphQLTypes.(
   })
 );
 
-let parse_type = GraphQLTypes.(
+let parse_type = GraphQL.(
   fix (fun parse_type => {
     char '[' >>> parse_type <<< char ']' >>= fun t =>
     option None (char '!' >>| to_some)   >>= fun c =>
@@ -64,7 +64,7 @@ let parse_type = GraphQLTypes.(
 ;
 
 let parse_argument =
-  GraphQLTypes.(
+  GraphQL.(
     parse_name       >>= fun name =>
     token (char ':') >>= fun _ =>
     parse_type       >>= fun graphql_type =>
@@ -90,7 +90,7 @@ let parse_deprecation =
   reason |> return
 ;
 
-let parse_field = GraphQLTypes.(
+let parse_field = GraphQL.(
   token (parse_name)                                >>= fun name =>
   option [] (parens (sep_by1 comma parse_argument)) >>= fun args =>
   token (char ':')                                  >>= fun _ =>
@@ -113,14 +113,14 @@ let parse_type_interface =
   return t
 ;
 
-let parse_object = GraphQLTypes.(
+let parse_object = GraphQL.(
   token (string "type") *> parse_name     >>= fun name =>
   token (option [] parse_type_interface)  >>= fun interfaces =>
   token (braces (many parse_field))       >>= fun fields =>
   Object {name, description: None, fields, interfaces} |> return
 );
 
-let parse_enum = GraphQLTypes.(
+let parse_enum = GraphQL.(
   token (string "enum") *> parse_name       >>= fun name =>
   token (braces (many @@ token parse_name)) >>= fun values =>
   Enum {
@@ -130,18 +130,18 @@ let parse_enum = GraphQLTypes.(
   } |> return
 );
 
-let parse_union = GraphQLTypes.(
+let parse_union = GraphQL.(
   token (string "union") >>> parse_name <<< token (char '=') >>= fun name =>
   token (sep_by1 (token (char '|')) (parse_type <\* skip_whitespace)) >>= fun possible_types =>
   Union {name, description: None, possible_types} |> return
 );
 
-let parse_scalar = GraphQLTypes.(
+let parse_scalar = GraphQL.(
   token (string "scalar") *> parse_name >>= fun name =>
   Scalar {name, description: None} |> return
 );
 
-let parse_interface = GraphQLTypes.(
+let parse_interface = GraphQL.(
   token (string "interface") *> parse_name >>= fun name =>
   token (braces (token (many parse_field)))        >>= fun fields =>
   Interface {
@@ -152,7 +152,7 @@ let parse_interface = GraphQLTypes.(
   } |> return
 );
 
-let parse_input = GraphQLTypes.(
+let parse_input = GraphQL.(
   token (string "input") *> parse_name >>= fun name =>
   token (braces (many parse_argument)) >>= fun input_value_types =>
   InputObject {
@@ -162,7 +162,7 @@ let parse_input = GraphQLTypes.(
   } |> return
 );
 
-let parse_schema = GraphQLTypes.(
+let parse_schema = GraphQL.(
   token (string "schema") >>= fun _ =>
   token (braces (many parse_field)) >>= fun fields =>
   Schema fields |> return
