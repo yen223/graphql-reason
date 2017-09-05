@@ -60,7 +60,7 @@ let print_as_field field_type name description args typ deprecated => {
     | _ => None
   };
   let str_deprecated = switch deprecated {
-    | IsDeprecated s => Some s
+    | IsDeprecated s => Some ("deprecation_reason=" ^ quote s)
     | NotDeprecated  => None
   };
   let field_args = [
