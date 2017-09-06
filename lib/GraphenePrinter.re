@@ -111,9 +111,11 @@ let print_type = fun
 ;
 
 let print_schema (Schema {query, mutation, types}) => {
-  TypeMap.bindings types
+  let import = "from graphene import *\n\n\n";
+  let body = TypeMap.bindings types
   |> List.map snd
   |> List.map print_type
   |> List.filter ((!=) "")
-  |> StrUtils.join_with "\n\n\n"
+  |> StrUtils.join_with "\n\n\n";
+  import ^ body
 }
